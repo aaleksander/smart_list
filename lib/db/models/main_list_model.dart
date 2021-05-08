@@ -1,4 +1,6 @@
-class MainListModel {
+import 'package:smart_list/db/models/base_model.dart';
+
+class MainListModel extends BaseModel {
   int id;
   String name;
   bool deleted;

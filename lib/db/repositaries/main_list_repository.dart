@@ -1,32 +1,30 @@
+import 'package:flutter/cupertino.dart';
 import 'package:smart_list/db/db_provider.dart';
 import 'package:smart_list/db/models/main_list_model.dart';
+import 'package:smart_list/db/repositaries/base_repository.dart';
 
 //TODO вынести все что можно в генерик-класс
-class MainListRepository {
-  static const String table_name = 'main_list';
-  MainListRepository._();
+class MainListRepository extends BaseRepository<MainListModel> {
+  //static const String table_name = 'main_list';
+  MainListRepository._() : super(tableName: 'main_list');
   static final MainListRepository inst = MainListRepository._();
 
-  Future<List<MainListModel>> getAll() async {
-    //TODO нужен параметр "удаленные/неудаленные"
-    print("запрос всех списков");
+  Future<List<MainListModel>> getAll({@required bool deleted}) async {
     final db = await DBProvider.db.database;
-    var res = await db.query(table_name);
+    var res = await db.query(tableName, where: 'deleted = ${deleted ? 1 : 0}');
     List<MainListModel> list =
         res.isNotEmpty ? res.map((x) => MainListModel.fromMap(x)).toList() : [];
     return list;
   }
 
   newList(String name) async {
-    print('insert нового списка');
     final db = await DBProvider.db.database;
 
-    var table = await db.rawQuery("SELECT MAX(id)+1 as id FROM $table_name");
-    int id = (table.first["id"] != null) ? table.first["id"] : 1;
+    int id = await getNewId();
     print('new id = $id');
 
-    var raw = await db.rawInsert(
-        'INSERT INTO $table_name (id, name, deleted)'
+    await db.rawInsert(
+        'INSERT INTO $tableName (id, name, deleted)'
         ' values(?, ?, ?)',
         [id, name, 0]);
 
@@ -35,7 +33,7 @@ class MainListRepository {
 
   byId(int id) async {
     final db = await DBProvider.db.database;
-    var res = await db.query("$table_name", where: "id = ?", whereArgs: [id]);
+    var res = await db.query("$tableName", where: "id = ?", whereArgs: [id]);
     return res.isNotEmpty ? MainListModel.fromMap(res.first) : Null;
   }
 }

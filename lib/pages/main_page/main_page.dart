@@ -21,6 +21,8 @@ class MainPage extends StatelessWidget {
           );
         if (state is MainPageLoadedState) return _loaded(state);
         if (state is MainPageErrorState) {
+          //TODO нужна отдельная ошибка "такой список существует", тогда
+          //появятся две кнопки "перейти к списку" и "вернуться на главную страницу"
           return Center(
             child: Container(
               child: Column(
@@ -116,11 +118,11 @@ class MainPage extends StatelessWidget {
                       onSelected: (MainListOption res) {
                         switch (res) {
                           case MainListOption.rename:
-                            //TODO переименование списка
+                            //TODO !! переименование списка
                             print('rename ${state.items[index].name}');
                             break;
                           case MainListOption.remove:
-                            //TODO удаление списка
+                            //TODO !!!! удаление списка
                             print('remove ${state.items[index].name}');
                             break;
                           default:

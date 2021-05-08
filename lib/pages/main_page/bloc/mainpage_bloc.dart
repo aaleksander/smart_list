@@ -18,29 +18,37 @@ class MainPageBloc extends Bloc<MainPageEvent, MainPageState> {
     MainPageEvent event,
   ) async* {
     if (event is MainPageInitialEvent) {
-      print("initial event");
-      yield MainPageInitialState();
-      var list = await MainListRepository.inst.getAll();
-      yield MainPageLoadedState(items: list);
+      yield* _init();
     }
 
     if (event is MainPageNewListEvent) {
-      print('new list event: "${event.newName.toString()}"');
-      if (event.newName == '') return;
-      try {
-        //проверяем, есть ли уже список с таким названием
-        var list = await MainListRepository.inst.getAll();
-        if (list.any((x) => x.name == event.newName)) {
-          yield MainPageErrorState(new_list_exists); //TODO
-          return;
-        }
-        var res = await MainListRepository.inst.newList(event.newName);
-        var newItem = await MainListRepository.inst.byId(res);
-        list.add(newItem); // = await MainListRepository.inst.getAll();
-        yield MainPageLoadedState(items: list);
-      } catch (e) {
-        yield MainPageErrorState(e.toString());
+      yield* _newList(event);
+    }
+  }
+
+  Stream<MainPageState> _init() async* {
+    print("initial event");
+    yield MainPageInitialState();
+    var list = await MainListRepository.inst.getAll(deleted: false);
+    yield MainPageLoadedState(items: list);
+  }
+
+  Stream<MainPageState> _newList(MainPageNewListEvent event) async* {
+    print('new list event: "${event.newName.toString()}"');
+    if (event.newName == '') return;
+    try {
+      //проверяем, есть ли уже список с таким названием
+      var list = await MainListRepository.inst.getAll(deleted: false);
+      if (list.any((x) => x.name == event.newName)) {
+        yield MainPageErrorState(new_list_exists);
+        return;
       }
+      var res = await MainListRepository.inst.newList(event.newName);
+      var newItem = await MainListRepository.inst.byId(res);
+      list.add(newItem); // = await MainListRepository.inst.getAll();
+      yield MainPageLoadedState(items: list);
+    } catch (e) {
+      yield MainPageErrorState(e.toString());
     }
   }
 }
