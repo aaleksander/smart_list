@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:smart_list/dialogs/input_text_dialog.dart';
 import 'package:smart_list/pages/main_page/bloc/mainpage_bloc.dart';
 import 'package:smart_list/strings.dart';
 
@@ -47,31 +48,14 @@ class MainPage extends StatelessWidget {
           showDialog(
               context: context,
               builder: (context) {
-                final TextEditingController nameController =
-                    TextEditingController();
-                return SimpleDialog(
-                  children: [
-                    TextField(
-                      autofocus: true,
-                      controller: nameController,
-                      decoration: InputDecoration(
-                        border: OutlineInputBorder(),
-                        labelText: new_list_title,
-                      ),
-                    ),
-                    Padding(
-                      padding: EdgeInsets.symmetric(horizontal: 5),
-                      child: ElevatedButton(
-                        onPressed: () {
-                          print('ok ${nameController.text}');
-                          Navigator.pop(context);
-                          _bloc.add(MainPageNewListEvent(nameController.text));
-                        },
-                        child: Text(create),
-                      ),
-                    ),
-                  ],
-                );
+                return InputTextDialog(
+                    context: context,
+                    text: new_list_title,
+                    textConfirm: create,
+                    func: (text) {
+                      print('новый список $text');
+                      _bloc.add(MainPageNewListEvent(text));
+                    });
               });
         },
         child: Icon(Icons.add),

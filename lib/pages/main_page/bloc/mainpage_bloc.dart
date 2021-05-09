@@ -46,6 +46,7 @@ class MainPageBloc extends Bloc<MainPageEvent, MainPageState> {
       var res = await MainListRepository.inst.newList(event.newName);
       var newItem = await MainListRepository.inst.byId(res);
       list.add(newItem); // = await MainListRepository.inst.getAll();
+      //TODO надо сразу переходить на только что созданный список
       yield MainPageLoadedState(items: list);
     } catch (e) {
       yield MainPageErrorState(e.toString());
