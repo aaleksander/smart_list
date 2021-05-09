@@ -24,6 +24,10 @@ class MainPageBloc extends Bloc<MainPageEvent, MainPageState> {
     if (event is MainPageNewListEvent) {
       yield* _newList(event);
     }
+
+    if (event is MainListRemoveListEvent) {
+      yield* _remove(event.item);
+    }
   }
 
   Stream<MainPageState> _init() async* {
@@ -51,5 +55,12 @@ class MainPageBloc extends Bloc<MainPageEvent, MainPageState> {
     } catch (e) {
       yield MainPageErrorState(e.toString());
     }
+  }
+
+  Stream<MainPageState> _remove(MainListModel item) async* {
+    print("remove event: ${item.name}");
+    MainListRepository.inst.remove(item.id);
+    var list = await MainListRepository.inst.getAll(deleted: false);
+    yield MainPageLoadedState(items: list);
   }
 }

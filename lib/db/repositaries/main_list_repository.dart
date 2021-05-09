@@ -36,4 +36,9 @@ class MainListRepository extends BaseRepository<MainListModel> {
     var res = await db.query("$tableName", where: "id = ?", whereArgs: [id]);
     return res.isNotEmpty ? MainListModel.fromMap(res.first) : Null;
   }
+
+  remove(int id) async {
+    final db = await DBProvider.db.database;
+    await db.rawInsert('update $tableName set deleted = 1 where id = ?', [id]);
+  }
 }
