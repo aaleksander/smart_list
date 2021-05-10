@@ -105,7 +105,20 @@ class MainPage extends StatelessWidget {
                         switch (res) {
                           case MainListOption.rename:
                             //TODO !! переименование списка
-                            print('rename ${state.items[index].name}');
+                            showDialog(
+                                context: context,
+                                builder: (context) {
+                                  return InputTextDialog(
+                                      context: context,
+                                      defaultText: state.items[index].name,
+                                      text: rename_list_title,
+                                      textConfirm: rename_cmd,
+                                      func: (text) {
+                                        print('новый список $text');
+                                        bloc.add(MainListRenameListEvent(
+                                            state.items[index], text));
+                                      });
+                                });
                             break;
                           case MainListOption.remove:
                             //удаление списка

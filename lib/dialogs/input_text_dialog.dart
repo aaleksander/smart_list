@@ -2,12 +2,13 @@ import 'package:flutter/material.dart';
 
 class InputTextDialog extends SimpleDialog {
   static TextEditingController _controller = TextEditingController();
-  InputTextDialog(
-      {@required func,
-      @required textConfirm,
-      @required text,
-      @required context})
-      : super(
+  InputTextDialog({
+    @required func,
+    @required textConfirm,
+    @required text,
+    @required context,
+    defaultText = '',
+  }) : super(
           children: [
             TextField(
               autofocus: true,
@@ -29,6 +30,6 @@ class InputTextDialog extends SimpleDialog {
             ),
           ],
         ) {
-    _controller.text = '';
+    _controller.text = defaultText;
   }
 }

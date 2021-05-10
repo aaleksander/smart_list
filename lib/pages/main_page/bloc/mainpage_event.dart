@@ -17,3 +17,9 @@ class MainListRemoveListEvent extends MainPageEvent {
   final MainListModel item;
   MainListRemoveListEvent(this.item);
 }
+
+class MainListRenameListEvent extends MainPageEvent {
+  final MainListModel item;
+  final String newName;
+  MainListRenameListEvent(this.item, this.newName);
+}

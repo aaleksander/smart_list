@@ -41,4 +41,10 @@ class MainListRepository extends BaseRepository<MainListModel> {
     final db = await DBProvider.db.database;
     await db.rawInsert('update $tableName set deleted = 1 where id = ?', [id]);
   }
+
+  rename(int id, String newName) async {
+    final db = await DBProvider.db.database;
+    await db.rawInsert(
+        'update $tableName set name = ? where id = ?', [newName, id]);
+  }
 }

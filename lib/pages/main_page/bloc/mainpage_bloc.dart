@@ -28,6 +28,29 @@ class MainPageBloc extends Bloc<MainPageEvent, MainPageState> {
     if (event is MainListRemoveListEvent) {
       yield* _remove(event.item);
     }
+
+    if (event is MainListRenameListEvent) {
+      yield* _rename(event.item, event.newName);
+    }
+  }
+
+  Stream<MainPageState> _rename(MainListModel model, String newName) async* {
+    print('rename list "${model.name}" to "$newName"');
+    if (newName == '') return;
+    try {
+      //проверяем, есть ли уже список с таким названием
+      var list = await MainListRepository.inst.getAll(deleted: false);
+      if (list.any((x) => x.name == newName)) {
+        yield MainPageErrorState(new_list_exists);
+        return;
+      }
+      await MainListRepository.inst.rename(model.id, newName);
+      var item = list.firstWhere((x) => x.id == model.id);
+      item.name = newName;
+      yield MainPageLoadedState(items: list);
+    } catch (e) {
+      yield MainPageErrorState(e.toString());
+    }
   }
 
   Stream<MainPageState> _init() async* {
