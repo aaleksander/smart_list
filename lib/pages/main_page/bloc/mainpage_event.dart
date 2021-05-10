@@ -23,3 +23,8 @@ class MainListRenameListEvent extends MainPageEvent {
   final String newName;
   MainListRenameListEvent(this.item, this.newName);
 }
+
+class MainPageShowListEvent extends MainPageEvent {
+  final int id;
+  MainPageShowListEvent(this.id);
+}

@@ -3,7 +3,6 @@ import 'package:smart_list/db/db_provider.dart';
 import 'package:smart_list/db/models/main_list_model.dart';
 import 'package:smart_list/db/repositaries/base_repository.dart';
 
-//TODO вынести все что можно в генерик-класс
 class MainListRepository extends BaseRepository<MainListModel> {
   //static const String table_name = 'main_list';
   MainListRepository._() : super(tableName: 'main_list');

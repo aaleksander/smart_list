@@ -21,7 +21,7 @@ class DBProvider {
 
     return await openDatabase(
       path,
-      version: 1,
+      version: 2,
       onOpen: (db) {},
       onUpgrade: _onUpgrade,
       onCreate: _onCreate,
@@ -33,7 +33,19 @@ class DBProvider {
     await db.execute(_sql_mainList);
   }
 
-  void _onUpgrade(Database db, int oldVersion, int newVersion) {}
+  void _onUpgrade(Database db, int oldVersion, int newVersion) async {
+    print('апдейтим бд $oldVersion -> $newVersion');
+    if (oldVersion == 1 && newVersion == 2) {
+      await db.execute(_sql_itemList);
+    }
+  }
+
+  static const String _sql_itemList = 'CREATE TABLE item_list ('
+      'id INTEGER PRIMARY KEY,'
+      'parent_id INTEGER,'
+      'name TEXT,'
+      'type INTEGER'
+      ')';
 
   static const String _sql_mainList = 'CREATE TABLE main_list ('
       'id INTEGER PRIMARY KEY,'

@@ -32,6 +32,10 @@ class MainPageBloc extends Bloc<MainPageEvent, MainPageState> {
     if (event is MainListRenameListEvent) {
       yield* _rename(event.item, event.newName);
     }
+
+    if (event is MainPageShowListEvent) {
+      print('переходим на список ${event.id}');
+    }
   }
 
   Stream<MainPageState> _rename(MainListModel model, String newName) async* {

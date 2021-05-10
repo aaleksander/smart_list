@@ -1,0 +1,23 @@
+import 'package:smart_list/db/db_provider.dart';
+import 'package:smart_list/db/models/item_list_model.dart';
+import 'package:smart_list/db/repositaries/base_repository.dart';
+
+class ItemListRepository extends BaseRepository<ItemListModel> {
+  ItemListRepository._() : super(tableName: 'item_list');
+  static final ItemListRepository inst = ItemListRepository._();
+
+  Future<List<ItemListModel>> getAll({int parentId = -1}) async {
+    final db = await DBProvider.db.database;
+    String where = (parentId == -1) ? '' : 'parent_id=${parentId.toString()}';
+    var res = await db.query(tableName, where: where);
+    List<ItemListModel> list =
+        res.isNotEmpty ? res.map((x) => ItemListModel.fromMap(x)).toList() : [];
+    return list;
+  }
+
+  byId(int id) async {
+    final db = await DBProvider.db.database;
+    var res = await db.query("$tableName", where: "id = ?", whereArgs: [id]);
+    return res.isNotEmpty ? ItemListModel.fromMap(res.first) : Null;
+  }
+}

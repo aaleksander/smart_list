@@ -2,6 +2,8 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:smart_list/dialogs/input_text_dialog.dart';
+import 'package:smart_list/pages/list_page/bloc/listpage_bloc.dart';
+import 'package:smart_list/pages/list_page/list_page.dart';
 import 'package:smart_list/pages/main_page/bloc/mainpage_bloc.dart';
 import 'package:smart_list/strings.dart';
 
@@ -20,7 +22,9 @@ class MainPage extends StatelessWidget {
           return Center(
             child: CircularProgressIndicator(),
           );
-        if (state is MainPageLoadedState) return _loaded(state, _bloc);
+
+        if (state is MainPageLoadedState) return _loaded(context, state, _bloc);
+
         if (state is MainPageErrorState) {
           //TODO нужна отдельная ошибка "такой список существует", тогда
           //появятся две кнопки "перейти к списку" и "вернуться на главную страницу"
@@ -68,12 +72,14 @@ class MainPage extends StatelessWidget {
     );
   }
 
-  _loaded(MainPageLoadedState state, MainPageBloc bloc) {
+  _loaded(context, MainPageLoadedState state, MainPageBloc bloc) {
     if (state.items.length == 0) {
       return Center(
         child: Text(main_list_is_empty),
       );
     }
+
+    final listBloc = BlocProvider.of<ListPageBloc>(context);
 
     return ListView.builder(
       itemCount: state.items.length,
@@ -83,8 +89,12 @@ class MainPage extends StatelessWidget {
           print('long tap'); //TODO по длинному тапу надо начать менять порядок
         },
         onTap: () {
-          //TODO переходим на страницу списка
-          print('tap on list item');
+          //переходим на страницу списка
+          //TODO возможно, можно сразу передавать MainListModel, чтоб лишний раз
+          //базу не дергать в ListPageBlock._loaded
+          listBloc.add(ListPageLoadEvent(state.items[index].id));
+          Navigator.push(
+              context, MaterialPageRoute(builder: (context) => ListPage()));
         },
         title: Container(
           padding: EdgeInsets.all(10),
@@ -98,13 +108,13 @@ class MainPage extends StatelessWidget {
                 children: [
                   Expanded(child: Text('${state.items[index].name}')),
                   Text(
-                    '1/5',
+                    '1/${state.items[index].items.length}',
+                    //TODO подсчитать кол-во выполненных пунктов
                   ),
                   PopupMenuButton<MainListOption>(
                       onSelected: (MainListOption res) {
                         switch (res) {
                           case MainListOption.rename:
-                            //TODO !! переименование списка
                             showDialog(
                                 context: context,
                                 builder: (context) {
@@ -166,7 +176,7 @@ class MainPage extends StatelessWidget {
               ),
               LinearProgressIndicator(
                 backgroundColor: Colors.black12,
-                value: 0.3,
+                value: 0.3, //TODO сделать расчет прогресса
               )
             ],
           ),
