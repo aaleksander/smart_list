@@ -7,18 +7,16 @@ class MainListModel extends BaseModel {
   String name;
   bool deleted;
 
-  MainListModel({this.id, this.name, this.deleted}) {
-    loadItems();
-  }
+  MainListModel({this.id, this.name, this.deleted});
 
   factory MainListModel.fromMap(Map<String, dynamic> json) {
-    bool del = false;
-    if (json['deleted'] != null) del = json['deleted'] == 1;
+    // bool del = false;
+    // if (json['deleted'] != null) del = json['deleted'] == 1;
 
     return MainListModel(
       id: json["id"],
       name: json["name"],
-      deleted: del,
+      deleted: bit2Bool(json, 'deleted'),
     );
   }
 
@@ -36,4 +34,15 @@ class MainListModel extends BaseModel {
   }
 
   List<ItemListModel> get items => _items;
+  // List<ItemListModel> get items => ItemListRepository.inst.getAll(parentId: id);
+
+  get percent {
+    var all = items.length;
+    var che = items.where((element) => element.checked).length;
+
+    if (all == 0)
+      return 0.0;
+    else
+      return che / all;
+  }
 }

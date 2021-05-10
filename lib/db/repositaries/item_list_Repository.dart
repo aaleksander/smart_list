@@ -8,8 +8,12 @@ class ItemListRepository extends BaseRepository<ItemListModel> {
 
   Future<List<ItemListModel>> getAll({int parentId = -1}) async {
     final db = await DBProvider.db.database;
+
     String where = (parentId == -1) ? '' : 'parent_id=${parentId.toString()}';
+
     var res = await db.query(tableName, where: where);
+    print('getAll: res.length = ${res.length}');
+
     List<ItemListModel> list =
         res.isNotEmpty ? res.map((x) => ItemListModel.fromMap(x)).toList() : [];
     return list;
@@ -19,5 +23,19 @@ class ItemListRepository extends BaseRepository<ItemListModel> {
     final db = await DBProvider.db.database;
     var res = await db.query("$tableName", where: "id = ?", whereArgs: [id]);
     return res.isNotEmpty ? ItemListModel.fromMap(res.first) : Null;
+  }
+
+  newItem(String name, int parentId) async {
+    final db = await DBProvider.db.database;
+
+    int id = await getNewId();
+    print('new id = $id, ');
+
+    await db.rawInsert(
+        'INSERT INTO $tableName (id, parent_id, name, checked )'
+        ' values(?, ?, ?, ?)',
+        [id, parentId, name, 0]);
+
+    return id;
   }
 }

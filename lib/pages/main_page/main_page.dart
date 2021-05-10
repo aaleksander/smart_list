@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:smart_list/db/models/main_list_model.dart';
 import 'package:smart_list/dialogs/input_text_dialog.dart';
 import 'package:smart_list/pages/list_page/bloc/listpage_bloc.dart';
 import 'package:smart_list/pages/list_page/list_page.dart';
@@ -23,7 +24,7 @@ class MainPage extends StatelessWidget {
             child: CircularProgressIndicator(),
           );
 
-        if (state is MainPageLoadedState) return _loaded(context, state, _bloc);
+        if (state is MainPageLoadedState) return _listView(context, state);
 
         if (state is MainPageErrorState) {
           //TODO нужна отдельная ошибка "такой список существует", тогда
@@ -72,44 +73,51 @@ class MainPage extends StatelessWidget {
     );
   }
 
-  _loaded(context, MainPageLoadedState state, MainPageBloc bloc) {
-    if (state.items.length == 0) {
-      return Center(
-        child: Text(main_list_is_empty),
-      );
-    }
-
-    final listBloc = BlocProvider.of<ListPageBloc>(context);
-
+  _listView(context, MainPageLoadedState state) {
     return ListView.builder(
-      itemCount: state.items.length,
-      itemBuilder: (context, index) => ListTile(
-        contentPadding: EdgeInsets.only(left: 3, right: 3),
-        onLongPress: () {
-          print('long tap'); //TODO по длинному тапу надо начать менять порядок
-        },
-        onTap: () {
-          //переходим на страницу списка
-          //TODO возможно, можно сразу передавать MainListModel, чтоб лишний раз
-          //базу не дергать в ListPageBlock._loaded
-          listBloc.add(ListPageLoadEvent(state.items[index].id));
-          Navigator.push(
-              context, MaterialPageRoute(builder: (context) => ListPage()));
-        },
-        title: Container(
-          padding: EdgeInsets.all(10),
-          decoration: BoxDecoration(
-              color: Colors.blue[200],
-              borderRadius: BorderRadius.all(Radius.circular(5))),
-          child: Column(
+        itemCount: state.items.length,
+        itemBuilder: (context, i) {
+          return _itemElement(context, state.items[i]);
+        });
+  }
+
+  _itemElement(context, MainListModel model) {
+    final mainBloc = BlocProvider.of<MainPageBloc>(context);
+    final listBloc = BlocProvider.of<ListPageBloc>(context);
+    print('_itemElement: element ${model.name}, ${model.items.length} items');
+    return ListTile(
+      key: Key(model.id.toString()),
+      contentPadding: EdgeInsets.only(left: 3, right: 3),
+      onLongPress: () {
+        print('long tap'); //TODO по длинному тапу надо начать менять порядок
+      },
+      onTap: () {
+        //переходим на страницу списка
+        //TODO возможно, можно сразу передавать MainListModel, чтоб лишний раз
+        //базу не дергать в ListPageBlock._loaded
+        listBloc.add(ListPageLoadEvent(model.id));
+        Navigator.push(
+                context, MaterialPageRoute(builder: (context) => ListPage()))
+            .then((value) {
+          mainBloc.add(
+              MainPageInitialEvent()); //это чтобы опять перегрузился список
+        });
+      },
+      title: Container(
+        padding: EdgeInsets.all(10),
+        decoration: BoxDecoration(
+            color: Colors.blue[200],
+            borderRadius: BorderRadius.all(Radius.circular(5))),
+        child:
+            BlocBuilder<ListPageBloc, ListPageState>(builder: (context, state) {
+          return Column(
             // crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Row(
                 children: [
-                  Expanded(child: Text('${state.items[index].name}')),
+                  Expanded(child: Text('${model.name}')),
                   Text(
-                    '1/${state.items[index].items.length}',
-                    //TODO подсчитать кол-во выполненных пунктов
+                    '${model.items.where((element) => element.checked).length}/${model.items.length}',
                   ),
                   PopupMenuButton<MainListOption>(
                       onSelected: (MainListOption res) {
@@ -120,13 +128,13 @@ class MainPage extends StatelessWidget {
                                 builder: (context) {
                                   return InputTextDialog(
                                       context: context,
-                                      defaultText: state.items[index].name,
+                                      defaultText: model.name,
                                       text: rename_list_title,
                                       textConfirm: rename_cmd,
                                       func: (text) {
                                         print('новый список $text');
-                                        bloc.add(MainListRenameListEvent(
-                                            state.items[index], text));
+                                        mainBloc.add(MainListRenameListEvent(
+                                            model, text));
                                       });
                                 });
                             break;
@@ -136,15 +144,15 @@ class MainPage extends StatelessWidget {
                                 context: context,
                                 builder: (context) {
                                   return AlertDialog(
-                                    title: Text(
-                                        'Удаляем список "${state.items[index].name}"'),
+                                    title:
+                                        Text('Удаляем список "${model.name}"'),
                                     content: Text(
                                         'Список отправить в архив. Подтвердите свое согласие.'),
                                     actions: [
                                       ElevatedButton(
                                           onPressed: () {
-                                            bloc.add(MainListRemoveListEvent(
-                                                state.items[index]));
+                                            mainBloc.add(
+                                                MainListRemoveListEvent(model));
                                             Navigator.pop(context);
                                           },
                                           child: Text('УДАЛИТЬ')),
@@ -176,11 +184,11 @@ class MainPage extends StatelessWidget {
               ),
               LinearProgressIndicator(
                 backgroundColor: Colors.black12,
-                value: 0.3, //TODO сделать расчет прогресса
+                value: model.percent,
               )
             ],
-          ),
-        ),
+          );
+        }),
       ),
     );
   }

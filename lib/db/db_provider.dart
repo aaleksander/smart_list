@@ -31,6 +31,7 @@ class DBProvider {
   void _onCreate(Database db, int version) async {
     print('создаем бд');
     await db.execute(_sql_mainList);
+    await db.execute(_sql_itemList);
   }
 
   void _onUpgrade(Database db, int oldVersion, int newVersion) async {
@@ -44,7 +45,8 @@ class DBProvider {
       'id INTEGER PRIMARY KEY,'
       'parent_id INTEGER,'
       'name TEXT,'
-      'type INTEGER'
+      'type INTEGER,'
+      'checked BIT'
       ')';
 
   static const String _sql_mainList = 'CREATE TABLE main_list ('

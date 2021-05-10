@@ -45,6 +45,7 @@ class MainPageBloc extends Bloc<MainPageEvent, MainPageState> {
       //проверяем, есть ли уже список с таким названием
       var list = await MainListRepository.inst.getAll(deleted: false);
       if (list.any((x) => x.name == newName)) {
+        //TODO проверить, чтобы id не совпадали.
         yield MainPageErrorState(new_list_exists);
         return;
       }
@@ -61,6 +62,9 @@ class MainPageBloc extends Bloc<MainPageEvent, MainPageState> {
     print("initial event");
     yield MainPageInitialState();
     var list = await MainListRepository.inst.getAll(deleted: false);
+    for (int i = 0; i < list.length; i++) {
+      await list[i].loadItems();
+    }
     yield MainPageLoadedState(items: list);
   }
 
@@ -70,6 +74,10 @@ class MainPageBloc extends Bloc<MainPageEvent, MainPageState> {
     try {
       //проверяем, есть ли уже список с таким названием
       var list = await MainListRepository.inst.getAll(deleted: false);
+      //TODO как-то надо избавиться от постоянного дерганья loadItems
+      for (int i = 0; i < list.length; i++) {
+        await list[i].loadItems();
+      }
       if (list.any((x) => x.name == event.newName)) {
         yield MainPageErrorState(new_list_exists);
         return;

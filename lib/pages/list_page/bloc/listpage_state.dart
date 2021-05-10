@@ -10,3 +10,9 @@ class ListPageLoadedState extends ListPageState {
 
   ListPageLoadedState(this.item);
 }
+
+///возникла ошибка
+class ListPageErrorState extends ListPageState {
+  final String message;
+  ListPageErrorState(this.message);
+}

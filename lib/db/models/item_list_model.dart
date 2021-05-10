@@ -5,10 +5,9 @@ class ItemListModel extends BaseModel {
   int parentId;
   String name;
   int type;
+  bool checked;
 
-  //TODO добавить поле "checked"
-
-  ItemListModel({this.id, this.parentId, this.name, this.type});
+  ItemListModel({this.id, this.parentId, this.name, this.type, this.checked});
 
   factory ItemListModel.fromMap(Map<String, dynamic> json) {
     return ItemListModel(
@@ -16,6 +15,7 @@ class ItemListModel extends BaseModel {
       parentId: json["parent_id"],
       name: json["name"],
       type: json["type"],
+      checked: bit2Bool(json, 'checked'),
     );
   }
 
@@ -24,5 +24,6 @@ class ItemListModel extends BaseModel {
         "parent_id": parentId,
         "name": name,
         "type": type,
+        "checked": checked,
       };
 }
