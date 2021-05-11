@@ -20,6 +20,7 @@ class ListPageBloc extends Bloc<ListPageEvent, ListPageState> {
   ) async* {
     if (event is ListPageLoadEvent) yield* _load(event.id);
     if (event is ListPageNewItemEvent) yield* _new(event.name);
+    if (event is ListPageCheckEvent) yield* _check(event.id, event.checked);
   }
 
   Stream<ListPageState> _load(int id) async* {
@@ -50,5 +51,16 @@ class ListPageBloc extends Bloc<ListPageEvent, ListPageState> {
     } catch (e) {
       yield ListPageErrorState(e.toString());
     }
+  }
+
+  Stream<ListPageState> _check(int id, bool check) async* {
+    print("_check $id to $check");
+
+    var item = await ItemListRepository.inst.byId(id);
+
+    ItemListRepository.inst.check(id, check);
+    _mainList = await MainListRepository.inst.byId(item.parentId);
+    await _mainList.loadItems();
+    yield ListPageLoadedState(_mainList);
   }
 }

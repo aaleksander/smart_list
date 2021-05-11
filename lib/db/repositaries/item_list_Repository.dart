@@ -19,7 +19,7 @@ class ItemListRepository extends BaseRepository<ItemListModel> {
     return list;
   }
 
-  byId(int id) async {
+  Future<ItemListModel> byId(int id) async {
     final db = await DBProvider.db.database;
     var res = await db.query("$tableName", where: "id = ?", whereArgs: [id]);
     return res.isNotEmpty ? ItemListModel.fromMap(res.first) : Null;
@@ -37,5 +37,15 @@ class ItemListRepository extends BaseRepository<ItemListModel> {
         [id, parentId, name, 0]);
 
     return id;
+  }
+
+  check(int id, bool val) async {
+    final db = await DBProvider.db.database;
+
+    var row = {
+      'checked': val ? 1 : 0,
+    };
+
+    await db.update(tableName, row, where: 'id = ?', whereArgs: [id]);
   }
 }

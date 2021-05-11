@@ -61,6 +61,8 @@ class ListPage extends StatelessWidget {
       );
     }
 
+    final ListPageBloc _bloc = BlocProvider.of<ListPageBloc>(context);
+
     return ListView.builder(
       itemCount: state.items.length,
       itemBuilder: (context, index) => ListTile(
@@ -86,9 +88,16 @@ class ListPage extends StatelessWidget {
             children: [
               Row(
                 children: [
-                  Expanded(child: Text('${state.items[index].name}')),
+                  Expanded(
+                      child: Text(
+                    '${state.items[index].name}',
+                  )),
                   Checkbox(
-                      value: state.items[index].checked, onChanged: (val) {})
+                      value: state.items[index].checked,
+                      onChanged: (val) {
+                        _bloc.add(
+                            ListPageCheckEvent(state.items[index].id, val));
+                      })
                 ],
               ),
             ],
