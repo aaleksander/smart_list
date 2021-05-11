@@ -97,6 +97,7 @@ class MainPageBloc extends Bloc<MainPageEvent, MainPageState> {
     print("remove event: ${item.name}");
     MainListRepository.inst.remove(item.id);
     var list = await MainListRepository.inst.getAll(deleted: false);
+    for (int i = 0; i < list.length; i++) await list[i].loadItems();
     yield MainPageLoadedState(items: list);
   }
 }
