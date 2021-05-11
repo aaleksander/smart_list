@@ -52,6 +52,7 @@ class MainPageBloc extends Bloc<MainPageEvent, MainPageState> {
       await MainListRepository.inst.rename(model.id, newName);
       var item = list.firstWhere((x) => x.id == model.id);
       item.name = newName;
+      for (int i = 0; i < list.length; i++) await list[i].loadItems();
       yield MainPageLoadedState(items: list);
     } catch (e) {
       yield MainPageErrorState(e.toString());
