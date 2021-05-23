@@ -10,3 +10,5 @@ const new_list_exists = "Список с таким именем уже суще
 const new_item_exists = "Пунк с таким названием уже существует";
 const rename_cmd = "ПЕРЕИМЕНОВАТЬ";
 const list_is_empty = 'Список пуст, создайте свой первый пункт ';
+const deleted = 'удалено';
+const remove_checked = 'Удалить отмеченные';

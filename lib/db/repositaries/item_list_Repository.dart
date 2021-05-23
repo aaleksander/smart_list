@@ -11,7 +11,8 @@ class ItemListRepository extends BaseRepository<ItemListModel> {
 
     String where = (parentId == -1) ? '' : 'parent_id=${parentId.toString()}';
 
-    var res = await db.query(tableName, where: where);
+    var res =
+        await db.query(tableName, where: where); //, orderBy: 'checked, id');
     print('getAll: res.length = ${res.length}');
 
     List<ItemListModel> list =
@@ -47,5 +48,11 @@ class ItemListRepository extends BaseRepository<ItemListModel> {
     };
 
     await db.update(tableName, row, where: 'id = ?', whereArgs: [id]);
+  }
+
+  remove(int id) async {
+    final db = await DBProvider.db.database;
+
+    await db.delete(tableName, where: 'id = ?', whereArgs: [id]);
   }
 }

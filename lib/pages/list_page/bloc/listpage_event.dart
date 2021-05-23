@@ -21,3 +21,9 @@ class ListPageCheckEvent extends ListPageEvent {
 
   ListPageCheckEvent(this.id, this.checked);
 }
+
+class ListPageRemoveItem extends ListPageEvent {
+  final int id;
+
+  ListPageRemoveItem(this.id);
+}

@@ -49,6 +49,7 @@ class MainPage extends StatelessWidget {
         return Center(child: Text('неизвестный state: ${state.toString()}'));
       }),
       floatingActionButton: FloatingActionButton(
+        //TODO эту область нужно занять на всю ширину, а то, когда список длинный, кнопка "добавить" перекрывает списки
         onPressed: () {
           showDialog(
               context: context,

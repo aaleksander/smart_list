@@ -6,18 +6,38 @@ import 'package:smart_list/dialogs/input_text_dialog.dart';
 import 'package:smart_list/pages/list_page/bloc/listpage_bloc.dart';
 import 'package:smart_list/strings.dart';
 
+enum ListOption { removeChecked }
+
 class ListPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final ListPageBloc _bloc = BlocProvider.of<ListPageBloc>(context);
     return Scaffold(
-      appBar: AppBar(title: BlocBuilder<ListPageBloc, ListPageState>(
-        builder: (context, state) {
-          if (state is ListPageInitialState) return Text("initial");
-          if (state is ListPageLoadedState) return Text(state.item.name);
-          return Text('неизвестное состояние: ${state.toString()}');
-        },
-      )),
+      appBar: AppBar(
+          actions: [
+            PopupMenuButton<ListOption>(
+                onSelected: (ListOption res) {
+                  switch (res) {
+                    case ListOption.removeChecked:
+                      //TODO !!! удалить отмеченные
+                      print('удаляем отмеченные');
+                      break;
+                  }
+                },
+                itemBuilder: (context) => <PopupMenuEntry<ListOption>>[
+                      const PopupMenuItem<ListOption>(
+                          value: ListOption.removeChecked,
+                          child: Text(remove_checked))
+                    ])
+          ],
+          //TODO справа добавить кнопку "more" с опциями (удалить купленные и т.п.)
+          title: BlocBuilder<ListPageBloc, ListPageState>(
+            builder: (context, state) {
+              if (state is ListPageInitialState) return Text("initial");
+              if (state is ListPageLoadedState) return Text(state.item.name);
+              return Text('неизвестное состояние: ${state.toString()}');
+            },
+          )),
       body: BlocBuilder<ListPageBloc, ListPageState>(builder: (context, state) {
         if (state is ListPageInitialState) return Center();
 
@@ -33,6 +53,7 @@ class ListPage extends StatelessWidget {
         );
       }),
       floatingActionButton: FloatingActionButton(
+        //TODO эту область нужно занять на всю ширину, а то, когда список длинный, кнопка "добавить" перекрывает списки
         child: Icon(Icons.add),
         onPressed: () {
           showDialog(
@@ -64,46 +85,49 @@ class ListPage extends StatelessWidget {
     final ListPageBloc _bloc = BlocProvider.of<ListPageBloc>(context);
 
     return ListView.builder(
-      itemCount: state.items.length,
-      itemBuilder: (context, index) => ListTile(
-        contentPadding: EdgeInsets.only(left: 3, right: 3),
-        onLongPress: () {
-          print('long tap'); //TODO по длинному тапу надо начать менять порядок
-        },
-        onTap: () {
-          //переходим на страницу списка
-          //TODO возможно, можно сразу передавать MainListModel, чтоб лишний раз
-          //базу не дергать в ListPageBlock._loaded
-          //listBloc.add(ListPageLoadEvent(state.items[index].id));
-          //Navigator.push(
-          //    context, MaterialPageRoute(builder: (context) => ListPage()));
-        },
-        title: Container(
-          padding: EdgeInsets.all(10),
-          decoration: BoxDecoration(
-              color: Colors.blue[200],
-              borderRadius: BorderRadius.all(Radius.circular(5))),
-          child: Column(
-            // crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
-                children: [
-                  Expanded(
-                      child: Text(
-                    '${state.items[index].name}',
-                  )),
-                  Checkbox(
-                      value: state.items[index].checked,
-                      onChanged: (val) {
-                        _bloc.add(
-                            ListPageCheckEvent(state.items[index].id, val));
-                      })
-                ],
+        itemCount: state.items.length,
+        itemBuilder: (context, index) {
+          final item = state.items[index];
+          return Dismissible(
+            key: Key(item.name),
+            background: Container(
+              color: Colors.red,
+            ),
+            onDismissed: (direction) {
+              print('dismiss ${item.name} $direction');
+              _bloc.add(ListPageRemoveItem(item.id));
+            },
+            child: ListTile(
+              contentPadding: EdgeInsets.only(left: 3, right: 3),
+              title: Container(
+                padding: EdgeInsets.all(10),
+                decoration: BoxDecoration(
+                    color: Colors.blue[200],
+                    borderRadius: BorderRadius.all(Radius.circular(5))),
+                child: Column(
+                  // crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        //TODO добавить иконку для пункта
+                        Expanded(
+                            child: Text(
+                          '${state.items[index].name}',
+                        )),
+                        Checkbox(
+                            value: state.items[index].checked,
+                            onChanged: (val) {
+                              //отмечаем итем как сделанный или наоборот
+                              _bloc.add(ListPageCheckEvent(
+                                  state.items[index].id, val));
+                            })
+                      ],
+                    ),
+                  ],
+                ),
               ),
-            ],
-          ),
-        ),
-      ),
-    );
+            ),
+          );
+        });
   }
 }

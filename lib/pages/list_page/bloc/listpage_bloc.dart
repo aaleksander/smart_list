@@ -21,6 +21,7 @@ class ListPageBloc extends Bloc<ListPageEvent, ListPageState> {
     if (event is ListPageLoadEvent) yield* _load(event.id);
     if (event is ListPageNewItemEvent) yield* _new(event.name);
     if (event is ListPageCheckEvent) yield* _check(event.id, event.checked);
+    if (event is ListPageRemoveItem) yield* _remove(event.id);
   }
 
   Stream<ListPageState> _load(int id) async* {
@@ -59,6 +60,16 @@ class ListPageBloc extends Bloc<ListPageEvent, ListPageState> {
     var item = await ItemListRepository.inst.byId(id);
 
     ItemListRepository.inst.check(id, check);
+    _mainList = await MainListRepository.inst.byId(item.parentId);
+    await _mainList.loadItems();
+    yield ListPageLoadedState(_mainList);
+  }
+
+  Stream<ListPageState> _remove(int id) async* {
+    print('_remove $id');
+
+    var item = await ItemListRepository.inst.byId(id);
+    ItemListRepository.inst.remove(id);
     _mainList = await MainListRepository.inst.byId(item.parentId);
     await _mainList.loadItems();
     yield ListPageLoadedState(_mainList);

@@ -44,11 +44,14 @@ class MainPageBloc extends Bloc<MainPageEvent, MainPageState> {
     try {
       //проверяем, есть ли уже список с таким названием
       var list = await MainListRepository.inst.getAll(deleted: false);
-      if (list.any((x) => x.name == newName)) {
-        //TODO проверить, чтобы id не совпадали.
+      MainListModel a =
+          list.firstWhere((x) => x.name == newName, orElse: () => null);
+      if (a != null && a.id != model.id) {
+        //если это запись с другим id => ошибка
         yield MainPageErrorState(new_list_exists);
         return;
       }
+      //переименовываем
       await MainListRepository.inst.rename(model.id, newName);
       var item = list.firstWhere((x) => x.id == model.id);
       item.name = newName;
