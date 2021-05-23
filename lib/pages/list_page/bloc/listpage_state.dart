@@ -13,6 +13,7 @@ class ListPageLoadedState extends ListPageState {
 
 ///возникла ошибка
 class ListPageErrorState extends ListPageState {
+  final MainListModel item;
   final String message;
-  ListPageErrorState(this.message);
+  ListPageErrorState(this.message, this.item);
 }

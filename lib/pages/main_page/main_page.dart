@@ -94,8 +94,6 @@ class MainPage extends StatelessWidget {
       },
       onTap: () {
         //переходим на страницу списка
-        //TODO возможно, можно сразу передавать MainListModel, чтоб лишний раз
-        //базу не дергать в ListPageBlock._loaded
         listBloc.add(ListPageLoadEvent(model.id));
         Navigator.push(
                 context, MaterialPageRoute(builder: (context) => ListPage()))
@@ -146,9 +144,8 @@ class MainPage extends StatelessWidget {
                                 builder: (context) {
                                   return AlertDialog(
                                     title:
-                                        Text('Удаляем список "${model.name}"'),
-                                    content: Text(
-                                        'Список отправить в архив. Подтвердите свое согласие.'),
+                                        Text('$removing_list "${model.name}"'),
+                                    content: Text(confirm_removing_list),
                                     actions: [
                                       ElevatedButton(
                                           onPressed: () {

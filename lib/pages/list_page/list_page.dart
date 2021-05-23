@@ -35,7 +35,8 @@ class ListPage extends StatelessWidget {
             builder: (context, state) {
               if (state is ListPageInitialState) return Text("initial");
               if (state is ListPageLoadedState) return Text(state.item.name);
-              return Text('неизвестное состояние: ${state.toString()}');
+              if (state is ListPageErrorState) return Text(state.item.name);
+              return Text(state.toString());
             },
           )),
       body: BlocBuilder<ListPageBloc, ListPageState>(builder: (context, state) {
@@ -46,7 +47,24 @@ class ListPage extends StatelessWidget {
           return _loaded(context, state.item);
         }
 
-        //TODO !!! состояние "ошибка"
+        if (state is ListPageErrorState) {
+          return Center(
+            child: Container(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  Text(state.message),
+                  ElevatedButton(
+                      onPressed: () {
+                        _bloc.add(ListPageLoadEvent(state.item.id));
+                      },
+                      child: Text('OK')),
+                ],
+              ),
+            ),
+          );
+        }
 
         return Center(
           child: Text('неизвестное состояние: ${state.toString()}'),

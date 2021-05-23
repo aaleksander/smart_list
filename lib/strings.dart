@@ -12,3 +12,6 @@ const rename_cmd = "ПЕРЕИМЕНОВАТЬ";
 const list_is_empty = 'Список пуст, создайте свой первый пункт ';
 const deleted = 'удалено';
 const remove_checked = 'Удалить отмеченные';
+const removing_list = 'Удаляем список';
+const confirm_removing_list =
+    'Список отправитcя в архив. Подтвердите свое согласие.';

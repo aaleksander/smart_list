@@ -41,7 +41,7 @@ class ListPageBloc extends Bloc<ListPageEvent, ListPageState> {
       //проверяем, есть ли уже пункт с таким названием
       var list = await ItemListRepository.inst.getAll(parentId: _mainList.id);
       if (list.any((x) => x.name == name)) {
-        yield ListPageErrorState(new_item_exists);
+        yield ListPageErrorState(new_item_exists, _mainList);
         return;
       }
       var res = await ItemListRepository.inst.newItem(name, _mainList.id);
@@ -50,7 +50,7 @@ class ListPageBloc extends Bloc<ListPageEvent, ListPageState> {
       //TODO надо сразу переходить на только что созданный список
       yield ListPageLoadedState(_mainList);
     } catch (e) {
-      yield ListPageErrorState(e.toString());
+      yield ListPageErrorState(e.toString(), _mainList);
     }
   }
 
