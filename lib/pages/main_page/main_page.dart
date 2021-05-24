@@ -148,12 +148,19 @@ class MainPage extends StatelessWidget {
                                     content: Text(confirm_removing_list),
                                     actions: [
                                       ElevatedButton(
-                                          onPressed: () {
-                                            mainBloc.add(
-                                                MainListRemoveListEvent(model));
-                                            Navigator.pop(context);
-                                          },
-                                          child: Text('УДАЛИТЬ')),
+                                        onPressed: () {
+                                          mainBloc.add(
+                                              MainListRemoveListEvent(model));
+                                          Navigator.pop(context);
+                                        },
+                                        child: Text(
+                                          'УДАЛИТЬ',
+                                        ),
+                                        style: ButtonStyle(
+                                            backgroundColor:
+                                                MaterialStateProperty.all(
+                                                    Colors.red)),
+                                      ),
                                       ElevatedButton(
                                           onPressed: () {
                                             Navigator.pop(context);

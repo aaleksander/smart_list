@@ -78,7 +78,7 @@ class MainPageBloc extends Bloc<MainPageEvent, MainPageState> {
     try {
       //проверяем, есть ли уже список с таким названием
       var list = await MainListRepository.inst.getAll(deleted: false);
-      //TODO как-то надо избавиться от постоянного дерганья loadItems
+      //TODO !!! как-то надо избавиться от постоянного дерганья loadItems
       for (int i = 0; i < list.length; i++) {
         await list[i].loadItems();
       }

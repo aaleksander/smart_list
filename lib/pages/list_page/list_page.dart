@@ -109,12 +109,77 @@ class ListPage extends StatelessWidget {
           return Dismissible(
             key: Key(item.name),
             background: Container(
-              color: Colors.red,
+                color: Colors.red,
+                child: Row(
+                  children: [
+                    Padding(
+                        padding: EdgeInsets.all(10),
+                        child: Icon(
+                          Icons.delete,
+                        )),
+                    Expanded(child: Container())
+                  ],
+                )),
+            secondaryBackground: Container(
+              color: Colors.green,
+              child: Row(
+                children: [
+                  Expanded(
+                    child: Container(),
+                  ),
+                  Icon(Icons.edit)
+                ],
+              ),
             ),
-            onDismissed: (direction) {
-              print('dismiss ${item.name} $direction');
-              _bloc.add(ListPageRemoveItem(item.id));
+            confirmDismiss: (direction) async {
+              if (direction == DismissDirection.startToEnd) {
+                final bool res = await showDialog(
+                    context: context,
+                    builder: (BuildContext context) {
+                      return AlertDialog(
+                        title: Text("$removing_item ${item.name}?"),
+                        content: Text(confirm_removing_item),
+                        actions: [
+                          ElevatedButton(
+                            onPressed: () {
+                              _bloc.add(ListPageRemoveItem(item.id));
+                              Navigator.of(context).pop();
+                            },
+                            child: Text(
+                              'УДАЛИТЬ',
+                            ),
+                            style: ButtonStyle(
+                                backgroundColor:
+                                    MaterialStateProperty.all(Colors.red)),
+                          ),
+                          ElevatedButton(
+                              onPressed: () {
+                                Navigator.pop(context);
+                              },
+                              child: Text('ОТМЕНА')),
+                        ],
+                      );
+                    });
+                return res;
+              } else {
+                return false;
+                // TODO: Navigate to edit page;
+              }
             },
+            // onDismissed: (direction) {
+            //   switch (direction) {
+            //     case DismissDirection.startToEnd:
+            //       print('dismiss ${item.name} $direction');
+            //       _bloc.add(ListPageRemoveItem(item.id));
+            //       break;
+            //     case DismissDirection.endToStart:
+            //       print('dismiss ${item.name} $direction');
+            //       break;
+            //     default:
+            //       print('unknown dismiss ${item.name} $direction');
+            //       break;
+            //   }
+            // },
             child: ListTile(
               contentPadding: EdgeInsets.only(left: 3, right: 3),
               title: Container(
