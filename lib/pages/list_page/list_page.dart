@@ -2,6 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:smart_list/db/models/main_list_model.dart';
+import 'package:smart_list/dialogs/confirm_delete_dialog.dart';
 import 'package:smart_list/dialogs/input_text_dialog.dart';
 import 'package:smart_list/pages/list_page/bloc/listpage_bloc.dart';
 import 'package:smart_list/strings.dart';
@@ -15,22 +16,27 @@ class ListPage extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
           actions: [
-            PopupMenuButton<ListOption>(
-                onSelected: (ListOption res) {
-                  switch (res) {
-                    case ListOption.removeChecked:
-                      //TODO !!! удалить отмеченные
-                      print('удаляем отмеченные');
-                      break;
-                  }
-                },
-                itemBuilder: (context) => <PopupMenuEntry<ListOption>>[
-                      const PopupMenuItem<ListOption>(
-                          value: ListOption.removeChecked,
-                          child: Text(remove_checked))
-                    ])
+            BlocBuilder<ListPageBloc, ListPageState>(builder: (context, state) {
+              return PopupMenuButton<ListOption>(
+                  onSelected: (ListOption res) {
+                    switch (res) {
+                      case ListOption.removeChecked:
+                        //TODO удалить отмеченные
+                        if (state is ListPageLoadedState) {
+                          print(
+                              'удаляем отмеченные у списка ${state.item.name}');
+                          //_bloc.add(ListPageRemoveChecked(item));
+                        }
+                        break;
+                    }
+                  },
+                  itemBuilder: (context) => <PopupMenuEntry<ListOption>>[
+                        const PopupMenuItem<ListOption>(
+                            value: ListOption.removeChecked,
+                            child: Text(remove_checked))
+                      ]);
+            })
           ],
-          //TODO справа добавить кнопку "more" с опциями (удалить купленные и т.п.)
           title: BlocBuilder<ListPageBloc, ListPageState>(
             builder: (context, state) {
               if (state is ListPageInitialState) return Text("initial");
@@ -43,7 +49,6 @@ class ListPage extends StatelessWidget {
         if (state is ListPageInitialState) return Center();
 
         if (state is ListPageLoadedState) {
-          print('state is ListPageLoadedState (${state.item.items.length})');
           return _loaded(context, state.item);
         }
 
@@ -82,7 +87,6 @@ class ListPage extends StatelessWidget {
                     text: new_item_title,
                     textConfirm: create,
                     func: (text) {
-                      print('новое дело: "$text"');
                       _bloc.add(ListPageNewItemEvent(text));
                     });
               });
@@ -92,7 +96,6 @@ class ListPage extends StatelessWidget {
   }
 
   _loaded(context, MainListModel state) {
-    print("_loaded ${state.name}, ${state.items.length}");
     var tmp = state.items;
     if (tmp.length == 0) {
       return Center(
@@ -136,50 +139,20 @@ class ListPage extends StatelessWidget {
                 final bool res = await showDialog(
                     context: context,
                     builder: (BuildContext context) {
-                      return AlertDialog(
-                        title: Text("$removing_item ${item.name}?"),
-                        content: Text(confirm_removing_item),
-                        actions: [
-                          ElevatedButton(
-                            onPressed: () {
-                              _bloc.add(ListPageRemoveItem(item.id));
-                              Navigator.of(context).pop();
-                            },
-                            child: Text(
-                              'УДАЛИТЬ',
-                            ),
-                            style: ButtonStyle(
-                                backgroundColor:
-                                    MaterialStateProperty.all(Colors.red)),
-                          ),
-                          ElevatedButton(
-                              onPressed: () {
-                                Navigator.pop(context);
-                              },
-                              child: Text('ОТМЕНА')),
-                        ],
-                      );
+                      return ConfirmDialog(
+                          func: () => _bloc.add(ListPageRemoveItem(item.id)),
+                          text: "$removing_item ${item.name}?",
+                          textConfirm: confirm_removing_item,
+                          actionText: delete,
+                          cancelText: cancel,
+                          context: context);
                     });
                 return res;
               } else {
                 return false;
-                // TODO: Navigate to edit page;
+                // TODO: !!! перейти на страницу редактирования
               }
             },
-            // onDismissed: (direction) {
-            //   switch (direction) {
-            //     case DismissDirection.startToEnd:
-            //       print('dismiss ${item.name} $direction');
-            //       _bloc.add(ListPageRemoveItem(item.id));
-            //       break;
-            //     case DismissDirection.endToStart:
-            //       print('dismiss ${item.name} $direction');
-            //       break;
-            //     default:
-            //       print('unknown dismiss ${item.name} $direction');
-            //       break;
-            //   }
-            // },
             child: ListTile(
               contentPadding: EdgeInsets.only(left: 3, right: 3),
               title: Container(

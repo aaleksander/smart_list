@@ -1,6 +1,8 @@
 const main_title = 'Умные списки';
 const main_list_is_empty = 'Список пуст, создайте свой первый список';
 const create = 'СОЗДАТЬ';
+const delete = "УДАЛИТЬ";
+const cancel = "Отмена";
 const new_list_title = 'Название нового списка';
 const new_item_title = 'Название нового пункта';
 const rename_list_title = 'Новое название списка';

@@ -27,3 +27,9 @@ class ListPageRemoveItem extends ListPageEvent {
 
   ListPageRemoveItem(this.id);
 }
+
+class ListPageRemoveChecked extends ListPageEvent {
+  final int id;
+
+  ListPageRemoveChecked(this.id);
+}

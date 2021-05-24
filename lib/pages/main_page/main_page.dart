@@ -2,6 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:smart_list/db/models/main_list_model.dart';
+import 'package:smart_list/dialogs/confirm_delete_dialog.dart';
 import 'package:smart_list/dialogs/input_text_dialog.dart';
 import 'package:smart_list/pages/list_page/bloc/listpage_bloc.dart';
 import 'package:smart_list/pages/list_page/list_page.dart';
@@ -59,7 +60,6 @@ class MainPage extends StatelessWidget {
                     text: new_list_title,
                     textConfirm: create,
                     func: (text) {
-                      print('новый список $text');
                       _bloc.add(MainPageNewListEvent(text));
                     });
               });
@@ -85,7 +85,6 @@ class MainPage extends StatelessWidget {
   _itemElement(context, MainListModel model) {
     final mainBloc = BlocProvider.of<MainPageBloc>(context);
     final listBloc = BlocProvider.of<ListPageBloc>(context);
-    print('_itemElement: element ${model.name}, ${model.items.length} items');
     return ListTile(
       key: Key(model.id.toString()),
       contentPadding: EdgeInsets.only(left: 3, right: 3),
@@ -131,7 +130,6 @@ class MainPage extends StatelessWidget {
                                       text: rename_list_title,
                                       textConfirm: rename_cmd,
                                       func: (text) {
-                                        print('новый список $text');
                                         mainBloc.add(MainListRenameListEvent(
                                             model, text));
                                       });
@@ -142,32 +140,14 @@ class MainPage extends StatelessWidget {
                             showDialog(
                                 context: context,
                                 builder: (context) {
-                                  return AlertDialog(
-                                    title:
-                                        Text('$removing_list "${model.name}"'),
-                                    content: Text(confirm_removing_list),
-                                    actions: [
-                                      ElevatedButton(
-                                        onPressed: () {
-                                          mainBloc.add(
-                                              MainListRemoveListEvent(model));
-                                          Navigator.pop(context);
-                                        },
-                                        child: Text(
-                                          'УДАЛИТЬ',
-                                        ),
-                                        style: ButtonStyle(
-                                            backgroundColor:
-                                                MaterialStateProperty.all(
-                                                    Colors.red)),
-                                      ),
-                                      ElevatedButton(
-                                          onPressed: () {
-                                            Navigator.pop(context);
-                                          },
-                                          child: Text('ОТМЕНА')),
-                                    ],
-                                  );
+                                  return ConfirmDialog(
+                                      func: () => mainBloc
+                                          .add(MainListRemoveListEvent(model)),
+                                      text: '$removing_list "${model.name}"',
+                                      textConfirm: confirm_removing_list,
+                                      actionText: delete,
+                                      cancelText: cancel,
+                                      context: context);
                                 });
                             break;
                           default:
