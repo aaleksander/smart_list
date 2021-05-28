@@ -29,7 +29,6 @@ class MainListModel extends BaseModel {
   List<ItemListModel> _items = [];
 
   loadItems() async {
-    print('load items for "$name"');
     _items = await ItemListRepository.inst.getAll(parentId: id);
   }
 

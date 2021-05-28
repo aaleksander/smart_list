@@ -13,6 +13,9 @@ class MainListRepository extends BaseRepository<MainListModel> {
     var res = await db.query(tableName, where: 'deleted = ${deleted ? 1 : 0}');
     List<MainListModel> list =
         res.isNotEmpty ? res.map((x) => MainListModel.fromMap(x)).toList() : [];
+    // for (int i = 0; i < list.length; i++) {
+    //   await list[i].loadItems();
+    // }
     return list;
   }
 
@@ -30,10 +33,10 @@ class MainListRepository extends BaseRepository<MainListModel> {
     return id;
   }
 
-  byId(int id) async {
+  Future<MainListModel> byId(int id) async {
     final db = await DBProvider.db.database;
     var res = await db.query("$tableName", where: "id = ?", whereArgs: [id]);
-    return res.isNotEmpty ? MainListModel.fromMap(res.first) : Null;
+    return res.isNotEmpty ? MainListModel.fromMap(res.first) : null;
   }
 
   remove(int id) async {

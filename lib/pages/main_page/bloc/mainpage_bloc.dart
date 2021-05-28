@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:bloc/bloc.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:meta/meta.dart';
 import 'package:smart_list/db/models/main_list_model.dart';
 import 'package:smart_list/db/repositaries/main_list_repository.dart';
@@ -69,6 +70,7 @@ class MainPageBloc extends Bloc<MainPageEvent, MainPageState> {
     for (int i = 0; i < list.length; i++) {
       await list[i].loadItems();
     }
+    print('initial ok');
     yield MainPageLoadedState(items: list);
   }
 
@@ -78,7 +80,7 @@ class MainPageBloc extends Bloc<MainPageEvent, MainPageState> {
     try {
       //проверяем, есть ли уже список с таким названием
       var list = await MainListRepository.inst.getAll(deleted: false);
-      //TODO !!! как-то надо избавиться от постоянного дерганья loadItems
+      //FIXME как-то надо избавиться от постоянного дерганья loadItems
       for (int i = 0; i < list.length; i++) {
         await list[i].loadItems();
       }
@@ -89,8 +91,7 @@ class MainPageBloc extends Bloc<MainPageEvent, MainPageState> {
       var res = await MainListRepository.inst.newList(event.newName);
       var newItem = await MainListRepository.inst.byId(res);
       list.add(newItem); // = await MainListRepository.inst.getAll();
-      //TODO надо сразу переходить на только что созданный список
-      yield MainPageLoadedState(items: list);
+      yield MainPageListAddedState(newItem.id);
     } catch (e) {
       yield MainPageErrorState(e.toString());
     }

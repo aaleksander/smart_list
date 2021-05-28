@@ -34,5 +34,5 @@ class ConfirmDialog extends AlertDialog {
                 },
                 child: Text(cancelText)),
           ],
-        ) {}
+        );
 }

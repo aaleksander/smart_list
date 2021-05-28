@@ -13,7 +13,6 @@ class ItemListRepository extends BaseRepository<ItemListModel> {
 
     var res =
         await db.query(tableName, where: where); //, orderBy: 'checked, id');
-    print('getAll: res.length = ${res.length}');
 
     List<ItemListModel> list =
         res.isNotEmpty ? res.map((x) => ItemListModel.fromMap(x)).toList() : [];

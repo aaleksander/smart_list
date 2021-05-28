@@ -22,18 +22,18 @@ class ListPageBloc extends Bloc<ListPageEvent, ListPageState> {
     if (event is ListPageNewItemEvent) yield* _new(event.name);
     if (event is ListPageCheckEvent) yield* _check(event.id, event.checked);
     if (event is ListPageRemoveItem) yield* _remove(event.id);
+    if (event is ListPageRemoveChecked) yield* _removeChecked(event.id);
   }
 
   Stream<ListPageState> _load(int id) async* {
     yield ListPageInitialState();
     _mainList = await MainListRepository.inst.byId(id);
     await _mainList.loadItems();
-    print('итого: ${_mainList.items.length}');
     yield ListPageLoadedState(_mainList);
   }
 
   Stream<ListPageState> _new(String name) async* {
-    print('_new $name для ${_mainList.name} (${_mainList.id})');
+    //print('_new $name для ${_mainList.name} (${_mainList.id})');
 
     if (name == '') return;
 
@@ -47,7 +47,6 @@ class ListPageBloc extends Bloc<ListPageEvent, ListPageState> {
       var res = await ItemListRepository.inst.newItem(name, _mainList.id);
       var newItem = await ItemListRepository.inst.byId(res);
       _mainList.items.add(newItem); // = await MainListRepository.inst.getAll();
-      //TODO надо сразу переходить на только что созданный список
       yield ListPageLoadedState(_mainList);
     } catch (e) {
       yield ListPageErrorState(e.toString(), _mainList);
@@ -55,7 +54,7 @@ class ListPageBloc extends Bloc<ListPageEvent, ListPageState> {
   }
 
   Stream<ListPageState> _check(int id, bool check) async* {
-    print("_check $id to $check");
+    //print("_check $id to $check");
 
     var item = await ItemListRepository.inst.byId(id);
 
@@ -66,11 +65,26 @@ class ListPageBloc extends Bloc<ListPageEvent, ListPageState> {
   }
 
   Stream<ListPageState> _remove(int id) async* {
-    print('_remove $id');
+    //print('_remove $id');
 
     var item = await ItemListRepository.inst.byId(id);
     ItemListRepository.inst.remove(id);
     _mainList = await MainListRepository.inst.byId(item.parentId);
+    await _mainList.loadItems();
+    yield ListPageLoadedState(_mainList);
+  }
+
+  Stream<ListPageState> _removeChecked(int id) async* {
+    print('_remove Checked $id');
+    _mainList = await MainListRepository.inst.byId(id);
+    await _mainList.loadItems();
+    for (int i = 0; i < _mainList.items.length; i++) {
+      if (_mainList.items[i].checked) {
+        await ItemListRepository.inst.remove(_mainList.items[i].id);
+      }
+    }
+    //докачиваем окончательный список
+    _mainList = await MainListRepository.inst.byId(id);
     await _mainList.loadItems();
     yield ListPageLoadedState(_mainList);
   }

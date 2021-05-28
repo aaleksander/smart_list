@@ -18,3 +18,9 @@ class MainPageErrorState extends MainPageState {
   final String message;
   MainPageErrorState(this.message);
 }
+
+///список создан
+class MainPageListAddedState extends MainPageState {
+  final int id;
+  MainPageListAddedState(this.id);
+}
