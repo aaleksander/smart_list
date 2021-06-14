@@ -5,10 +5,11 @@ import 'package:smart_list/db/models/main_list_model.dart';
 import 'package:smart_list/dialogs/confirm_delete_dialog.dart';
 import 'package:smart_list/dialogs/input_text_dialog.dart';
 import 'package:smart_list/misc/stream_builder_with_listener.dart';
-import 'package:smart_list/pages/list_page/bloc/listpage_bloc.dart';
+import 'package:smart_list/pages/list_page/bloc/listpage_cubit.dart';
+import 'package:smart_list/pages/list_page/bloc/listpage_state.dart';
 import 'package:smart_list/pages/list_page/list_page.dart';
-import 'package:smart_list/pages/main_page/bloc/mainpage_bloc.dart';
 import 'package:smart_list/pages/main_page/bloc/mainpage_cubit.dart';
+import 'package:smart_list/pages/main_page/bloc/mainpage_state.dart';
 import 'package:smart_list/strings.dart';
 
 enum MainListOption { rename, remove }
@@ -30,8 +31,8 @@ class MainPage extends StatelessWidget {
           if (value is MainPageListAddedState) {
             print('переход на список ${value.id}');
             final mainBloc = BlocProvider.of<MainPageCubit>(context);
-            final listBloc = BlocProvider.of<ListPageBloc>(context);
-            listBloc.add(ListPageLoadEvent(value.id));
+            final listBloc = BlocProvider.of<ListPageCubit>(context);
+            listBloc.load(value.id);
             Navigator.push(context,
                     MaterialPageRoute(builder: (context) => ListPage()))
                 .then((value) {
@@ -111,7 +112,7 @@ class MainPage extends StatelessWidget {
 
   _itemElement(context, MainListModel model) {
     final mainBloc = BlocProvider.of<MainPageCubit>(context);
-    final listBloc = BlocProvider.of<ListPageBloc>(context);
+    final listBloc = BlocProvider.of<ListPageCubit>(context);
     return ListTile(
       key: Key(model.id.toString()),
       contentPadding: EdgeInsets.only(left: 3, right: 3),
@@ -120,7 +121,7 @@ class MainPage extends StatelessWidget {
       },
       onTap: () {
         //переходим на страницу списка
-        listBloc.add(ListPageLoadEvent(model.id));
+        listBloc.load(model.id);
         Navigator.push(
                 context, MaterialPageRoute(builder: (context) => ListPage()))
             .then((value) {
@@ -132,8 +133,8 @@ class MainPage extends StatelessWidget {
         decoration: BoxDecoration(
             color: Colors.blue[200],
             borderRadius: BorderRadius.all(Radius.circular(5))),
-        child:
-            BlocBuilder<ListPageBloc, ListPageState>(builder: (context, state) {
+        child: BlocBuilder<ListPageCubit, ListPageState>(
+            builder: (context, state) {
           return Column(
             // crossAxisAlignment: CrossAxisAlignment.start,
             children: [

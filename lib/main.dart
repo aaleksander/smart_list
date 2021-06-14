@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:smart_list/pages/list_page/bloc/listpage_bloc.dart';
+import 'package:smart_list/pages/list_page/bloc/listpage_cubit.dart';
 import 'package:smart_list/pages/main_page/bloc/mainpage_cubit.dart';
 import 'package:smart_list/pages/main_page/main_page.dart';
 import 'package:smart_list/strings.dart';
@@ -16,10 +16,10 @@ class MyApp extends StatelessWidget {
     return MultiBlocProvider(
       providers: [
         BlocProvider<MainPageCubit>(
-            create: (context) =>
-                MainPageCubit()..init()), //..add(MainPageInitialEvent())),
-        BlocProvider<ListPageBloc>(
-            create: (context) => ListPageBloc()..add(ListPageInitialEvent())),
+            create: (context) => MainPageCubit()..init()),
+        BlocProvider<ListPageCubit>(
+          create: (context) => ListPageCubit(),
+        ),
       ],
       child: MaterialApp(
         debugShowCheckedModeBanner: false,

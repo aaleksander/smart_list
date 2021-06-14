@@ -4,7 +4,8 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:smart_list/db/models/main_list_model.dart';
 import 'package:smart_list/dialogs/confirm_delete_dialog.dart';
 import 'package:smart_list/dialogs/input_text_dialog.dart';
-import 'package:smart_list/pages/list_page/bloc/listpage_bloc.dart';
+import 'package:smart_list/pages/list_page/bloc/listpage_cubit.dart';
+import 'package:smart_list/pages/list_page/bloc/listpage_state.dart';
 import 'package:smart_list/strings.dart';
 
 enum ListOption { removeChecked }
@@ -12,11 +13,12 @@ enum ListOption { removeChecked }
 class ListPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    final ListPageBloc _bloc = BlocProvider.of<ListPageBloc>(context);
+    final ListPageCubit _bloc = BlocProvider.of<ListPageCubit>(context);
     return Scaffold(
       appBar: AppBar(
           actions: [
-            BlocBuilder<ListPageBloc, ListPageState>(builder: (context, state) {
+            BlocBuilder<ListPageCubit, ListPageState>(
+                builder: (context, state) {
               return PopupMenuButton<ListOption>(
                   onSelected: (ListOption res) {
                     switch (res) {
@@ -24,7 +26,7 @@ class ListPage extends StatelessWidget {
                         if (state is ListPageLoadedState) {
                           print(
                               'удаляем отмеченные у списка ${state.item.name}');
-                          _bloc.add(ListPageRemoveChecked(state.item.id));
+                          _bloc.removeChecked(state.item.id);
                         }
                         break;
                     }
@@ -36,7 +38,7 @@ class ListPage extends StatelessWidget {
                       ]);
             })
           ],
-          title: BlocBuilder<ListPageBloc, ListPageState>(
+          title: BlocBuilder<ListPageCubit, ListPageState>(
             builder: (context, state) {
               if (state is ListPageInitialState) return Text("initial");
               if (state is ListPageLoadedState) return Text(state.item.name);
@@ -44,7 +46,8 @@ class ListPage extends StatelessWidget {
               return Text(state.toString());
             },
           )),
-      body: BlocBuilder<ListPageBloc, ListPageState>(builder: (context, state) {
+      body:
+          BlocBuilder<ListPageCubit, ListPageState>(builder: (context, state) {
         if (state is ListPageInitialState) return Center();
 
         if (state is ListPageLoadedState) {
@@ -61,7 +64,7 @@ class ListPage extends StatelessWidget {
                   Text(state.message),
                   ElevatedButton(
                       onPressed: () {
-                        _bloc.add(ListPageLoadEvent(state.item.id));
+                        _bloc.load(state.item.id);
                       },
                       child: Text('OK')),
                 ],
@@ -86,7 +89,7 @@ class ListPage extends StatelessWidget {
                     text: new_item_title,
                     textConfirm: create,
                     func: (text) {
-                      _bloc.add(ListPageNewItemEvent(text));
+                      _bloc.newItem(text);
                     });
               });
         },
@@ -102,7 +105,7 @@ class ListPage extends StatelessWidget {
       );
     }
 
-    final ListPageBloc _bloc = BlocProvider.of<ListPageBloc>(context);
+    final ListPageCubit _bloc = BlocProvider.of<ListPageCubit>(context);
 
     return ListView.builder(
         itemCount: state.items.length,
@@ -139,7 +142,7 @@ class ListPage extends StatelessWidget {
                     context: context,
                     builder: (BuildContext context) {
                       return ConfirmDialog(
-                          func: () => _bloc.add(ListPageRemoveItem(item.id)),
+                          func: () => _bloc.remove(item.id),
                           text: "$removing_item ${item.name}?",
                           textConfirm: confirm_removing_item,
                           actionText: delete,
@@ -173,8 +176,7 @@ class ListPage extends StatelessWidget {
                             value: state.items[index].checked,
                             onChanged: (val) {
                               //отмечаем итем как сделанный или наоборот
-                              _bloc.add(ListPageCheckEvent(
-                                  state.items[index].id, val));
+                              _bloc.check(state.items[index].id, val);
                               //TODO !!! анимация, как пункт переходит на нужное место в конец
                             })
                       ],

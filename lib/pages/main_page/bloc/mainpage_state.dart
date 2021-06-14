@@ -1,4 +1,5 @@
-part of 'mainpage_bloc.dart';
+import 'package:flutter/foundation.dart';
+import 'package:smart_list/db/models/main_list_model.dart';
 
 @immutable
 abstract class MainPageState {}

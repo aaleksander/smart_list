@@ -1,7 +1,7 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:smart_list/db/models/main_list_model.dart';
 import 'package:smart_list/db/repositaries/main_list_repository.dart';
-import 'package:smart_list/pages/main_page/bloc/mainpage_bloc.dart';
+import 'package:smart_list/pages/main_page/bloc/mainpage_state.dart';
 
 import '../../../strings.dart';
 
