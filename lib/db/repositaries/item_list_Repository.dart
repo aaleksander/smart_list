@@ -11,8 +11,7 @@ class ItemListRepository extends BaseRepository<ItemListModel> {
 
     String where = (parentId == -1) ? '' : 'parent_id=${parentId.toString()}';
 
-    var res =
-        await db.query(tableName, where: where); //, orderBy: 'checked, id');
+    var res = await db.query(tableName, where: where, orderBy: 'checked, id');
 
     List<ItemListModel> list =
         res.isNotEmpty ? res.map((x) => ItemListModel.fromMap(x)).toList() : [];

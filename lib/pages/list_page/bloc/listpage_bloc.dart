@@ -65,8 +65,6 @@ class ListPageBloc extends Bloc<ListPageEvent, ListPageState> {
   }
 
   Stream<ListPageState> _remove(int id) async* {
-    //print('_remove $id');
-
     var item = await ItemListRepository.inst.byId(id);
     ItemListRepository.inst.remove(id);
     _mainList = await MainListRepository.inst.byId(item.parentId);

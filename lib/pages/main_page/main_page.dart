@@ -8,6 +8,7 @@ import 'package:smart_list/misc/stream_builder_with_listener.dart';
 import 'package:smart_list/pages/list_page/bloc/listpage_bloc.dart';
 import 'package:smart_list/pages/list_page/list_page.dart';
 import 'package:smart_list/pages/main_page/bloc/mainpage_bloc.dart';
+import 'package:smart_list/pages/main_page/bloc/mainpage_cubit.dart';
 import 'package:smart_list/strings.dart';
 
 enum MainListOption { rename, remove }
@@ -15,7 +16,8 @@ enum MainListOption { rename, remove }
 class MainPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    final MainPageBloc _bloc = BlocProvider.of<MainPageBloc>(context);
+    //final MainPageBloc _bloc = BlocProvider.of<MainPageBloc>(context);
+    final MainPageCubit _bloc = BlocProvider.of<MainPageCubit>(context);
 
     return Scaffold(
       appBar: AppBar(
@@ -27,14 +29,13 @@ class MainPage extends StatelessWidget {
         listener: (value) {
           if (value is MainPageListAddedState) {
             print('переход на список ${value.id}');
-            final mainBloc = BlocProvider.of<MainPageBloc>(context);
+            final mainBloc = BlocProvider.of<MainPageCubit>(context);
             final listBloc = BlocProvider.of<ListPageBloc>(context);
             listBloc.add(ListPageLoadEvent(value.id));
             Navigator.push(context,
                     MaterialPageRoute(builder: (context) => ListPage()))
                 .then((value) {
-              mainBloc.add(
-                  MainPageInitialEvent()); //это чтобы опять перегрузился список;
+              mainBloc.init();
             });
           }
         },
@@ -61,7 +62,8 @@ class MainPage extends StatelessWidget {
                     Text(state.message),
                     ElevatedButton(
                         onPressed: () {
-                          _bloc.add(MainPageInitialEvent());
+                          _bloc.init();
+                          // add(MainPageInitialEvent());
                         },
                         child: Text('OK')),
                   ],
@@ -85,7 +87,7 @@ class MainPage extends StatelessWidget {
                     text: new_list_title,
                     textConfirm: create,
                     func: (text) {
-                      _bloc.add(MainPageNewListEvent(text));
+                      _bloc.newList(text); // .add(MainPageNewListEvent(text));
                     });
               });
         },
@@ -108,7 +110,7 @@ class MainPage extends StatelessWidget {
   }
 
   _itemElement(context, MainListModel model) {
-    final mainBloc = BlocProvider.of<MainPageBloc>(context);
+    final mainBloc = BlocProvider.of<MainPageCubit>(context);
     final listBloc = BlocProvider.of<ListPageBloc>(context);
     return ListTile(
       key: Key(model.id.toString()),
@@ -122,8 +124,7 @@ class MainPage extends StatelessWidget {
         Navigator.push(
                 context, MaterialPageRoute(builder: (context) => ListPage()))
             .then((value) {
-          mainBloc.add(
-              MainPageInitialEvent()); //это чтобы опять перегрузился список
+          mainBloc.init(); //это чтобы опять перегрузился список
         });
       },
       title: Container(
@@ -155,8 +156,7 @@ class MainPage extends StatelessWidget {
                                       text: rename_list_title,
                                       textConfirm: rename_cmd,
                                       func: (text) {
-                                        mainBloc.add(MainListRenameListEvent(
-                                            model, text));
+                                        mainBloc.rename(model, text);
                                       });
                                 });
                             break;
@@ -166,8 +166,7 @@ class MainPage extends StatelessWidget {
                                 context: context,
                                 builder: (context) {
                                   return ConfirmDialog(
-                                      func: () => mainBloc
-                                          .add(MainListRemoveListEvent(model)),
+                                      func: () => mainBloc.remove(model),
                                       text: '$removing_list "${model.name}"',
                                       textConfirm: confirm_removing_list,
                                       actionText: delete,

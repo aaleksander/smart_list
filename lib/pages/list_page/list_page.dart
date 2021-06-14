@@ -21,7 +21,6 @@ class ListPage extends StatelessWidget {
                   onSelected: (ListOption res) {
                     switch (res) {
                       case ListOption.removeChecked:
-                        //TODO !!!!! удалить отмеченные
                         if (state is ListPageLoadedState) {
                           print(
                               'удаляем отмеченные у списка ${state.item.name}');
@@ -150,7 +149,7 @@ class ListPage extends StatelessWidget {
                 return res;
               } else {
                 return false;
-                // TODO: !!! перейти на страницу редактирования пункта
+                // TODO: перейти на страницу редактирования пункта
               }
             },
             child: ListTile(
@@ -165,7 +164,7 @@ class ListPage extends StatelessWidget {
                   children: [
                     Row(
                       children: [
-                        //FICHA: добавить иконку для пункта
+                        //TODO добавить иконку для пункта
                         Expanded(
                             child: Text(
                           '${state.items[index].name}',
@@ -176,6 +175,7 @@ class ListPage extends StatelessWidget {
                               //отмечаем итем как сделанный или наоборот
                               _bloc.add(ListPageCheckEvent(
                                   state.items[index].id, val));
+                              //TODO !!! анимация, как пункт переходит на нужное место в конец
                             })
                       ],
                     ),
